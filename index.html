@@ -344,9 +344,10 @@ document.getElementById("message").innerHTML="⬇ Try Smaller";
 }
 
 document.getElementById("guessInput").value="";
+  setTimeout(()=>{
 document.getElementById("guessInput").focus();
+},50);
 }
-
 function startComputerGame(range){
 
 low=1;
