@@ -1,6 +1,5 @@
 import random
 import time
-
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
 RED = "\033[31m"
