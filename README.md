@@ -36,7 +36,10 @@ Play the game here:
 https://ashlybenny.github.io/Number-Guessing-Game/
 
 
- Technologies Used:-
+Technologies Used:-
 * HTML
 * CSS
 * JavaScript
+
+  Earlier Version-
+  This project was first created as a simple Python terminal game before being converted into a web-basedgame using HTML,CSS,JavaScript.
