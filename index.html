@@ -1,0 +1,438 @@
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>🎯 Guess The Number</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#e6d9b8;
+
+background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><text x='10' y='20' font-size='14' fill='rgba(0,0,0,0.15)'>✿</text><text x='70' y='30' font-size='14' fill='rgba(0,0,0,0.15)'>✧</text><text x='40' y='80' font-size='14' fill='rgba(0,0,0,0.15)'>✦</text><text x='90' y='90' font-size='14' fill='rgba(0,0,0,0.15)'>✾</text></svg>");
+
+background-size:140px 140px;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+height:100vh;
+margin:0;
+}
+
+/* cute card */
+
+.card{
+background:#f5f5f5;
+padding:35px;
+border-radius:20px;
+text-align:center;
+
+width:90%;
+max-width:420px;
+
+box-shadow:0 15px 35px rgba(0,0,0,0.25);
+
+/* start animation */
+
+animation:popIn 0.6s ease;
+}
+
+/* animation */
+
+@keyframes popIn{
+0%{
+opacity:0;
+transform:scale(0.8);
+}
+100%{
+opacity:1;
+transform:scale(1);
+}
+}
+
+button{
+padding:10px 18px;
+margin:6px;
+border:none;
+border-radius:8px;
+background:#f2c15c;
+cursor:pointer;
+font-size:16px;
+transition:0.2s;
+}
+
+button:hover{
+background:#f5b93d;
+transform:scale(1.05);
+}
+
+input{
+width:200px;
+font-size:18px;
+text-align:center;
+margin-top:10px;
+padding:10px;
+}
+
+.infoBox{
+margin-top:20px;
+background:white;
+padding:15px;
+border-radius:12px;
+font-size:14px;
+line-height:1.6;
+}
+
+#timer{
+color:red;
+font-weight:bold;
+}
+
+.warning{
+animation:blink 1s infinite;
+}
+
+@keyframes blink{
+0%{color:red;}
+50%{color:darkred;}
+100%{color:red;}
+}
+
+@media (max-width:600px){
+
+.card{
+padding:20px;
+}
+
+button{
+width:100%;
+margin:8px 0;
+}
+
+input{
+width:100%;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🎯 Guess The Number</h1>
+
+<div id="mode">
+
+<p>Select Mode</p>
+
+<button onclick="chooseMode(1)">Player Guesses</button>
+<button onclick="chooseMode(2)">Computer Guesses</button>
+
+</div>
+
+<div id="difficulty" style="display:none">
+
+<p>Select Difficulty</p>
+
+<button onclick="startGame(50,50)">Easy</button>
+<button onclick="startGame(100,70)">Medium</button>
+<button onclick="startGame(500,90)">Hard</button>
+
+</div>
+
+<div id="game" style="display:none">
+
+<p id="rangeText"></p>
+<p id="timer"></p>
+
+<input id="guessInput" type="number" min="1" inputmode="numeric">
+
+<br><br>
+
+<button id="guessBtn" onclick="checkGuess()">Guess</button>
+
+<p id="message"></p>
+<p id="history"></p>
+
+<button onclick="restartGame()">🔁 Restart</button>
+
+</div>
+
+<div id="computerGame" style="display:none">
+
+<p id="computerText"></p>
+<h2 id="computerGuess"></h2>
+
+<button onclick="tooSmall()">⬆ Bigger</button>
+<button onclick="tooBig()">⬇ Smaller</button>
+<button onclick="correct()">🎉 Correct</button>
+
+<br><br>
+
+<button onclick="restartGame()">🔁 Restart</button>
+
+</div>
+
+<div class="infoBox" id="infoBox">
+
+<h3>✨ How To Play</h3>
+
+<p>🎮 <b>Player Guesses</b><br>
+The computer thinks of a number.  
+Try to guess it before the timer ends.</p>
+
+<p>🤖 <b>Computer Guesses</b><br>
+Think of a number in your mind.  
+The computer will try to guess it.</p>
+
+<p>⚙ Select a difficulty: Easy / Medium / Hard</p>
+
+<p>🔢 Enter a number and press <b>Guess</b></p>
+
+<p>⬆ Bigger | ⬇ Smaller | 🎉 Correct</p>
+
+<p>⏳ Try to guess before time runs out!</p>
+
+</div>
+
+</div>
+
+<script>
+
+let mode=1;
+
+let secretNumber;
+let maxRange;
+let timeLeft;
+let timer;
+let guesses=[];
+let attempts=0;
+
+let low,high,currentGuess;
+
+function chooseMode(m){
+
+mode=m;
+
+document.getElementById("infoBox").style.display="none";
+document.getElementById("mode").style.display="none";
+document.getElementById("difficulty").style.display="block";
+
+}
+
+function startGame(range,time){
+
+document.getElementById("difficulty").style.display="none";
+
+if(mode===1){
+
+document.getElementById("game").style.display="block";
+startPlayerGame(range,time);
+
+}else{
+
+document.getElementById("computerGame").style.display="block";
+startComputerGame(range);
+
+}
+
+}
+
+function startPlayerGame(range,time){
+
+maxRange=range;
+
+secretNumber=Math.floor(Math.random()*range)+1;
+
+timeLeft=time;
+attempts=0;
+guesses=[];
+
+document.getElementById("rangeText").innerText="Guess between 1 and "+range;
+
+document.getElementById("guessInput").max=range;
+document.getElementById("guessInput").focus();
+
+document.getElementById("timer").innerText="🕒 Time Left: "+timeLeft+"s";
+
+timer=setInterval(function(){
+
+timeLeft--;
+
+let timerElement=document.getElementById("timer");
+
+timerElement.innerText="🕒 Time Left: "+timeLeft+"s";
+
+if(timeLeft<=10){
+timerElement.classList.add("warning");
+}
+
+if(timeLeft<=0){
+
+clearInterval(timer);
+
+document.getElementById("message").innerHTML="❌ Time's up! Number was "+secretNumber;
+
+document.getElementById("guessInput").disabled=true;
+document.getElementById("guessBtn").disabled=true;
+
+}
+
+},1000);
+
+}
+
+function checkGuess(){
+
+let guess=parseInt(document.getElementById("guessInput").value);
+
+if(isNaN(guess)) return;
+
+if(guess<1 || guess>maxRange){
+
+document.getElementById("message").innerHTML="⚠ Enter number between 1 and "+maxRange;
+return;
+
+}
+
+attempts++;
+
+guesses.push(guess);
+
+document.getElementById("history").innerText="Previous guesses: "+guesses.join(", ");
+
+if(guess===secretNumber){
+
+clearInterval(timer);
+
+document.getElementById("message").innerHTML="🎉 Correct!";
+
+confetti({
+particleCount:200,
+spread:120,
+origin:{y:0.6}
+});
+
+document.getElementById("guessInput").disabled=true;
+document.getElementById("guessBtn").disabled=true;
+
+}
+
+else if(guess<secretNumber){
+
+document.getElementById("message").innerHTML="⬆ Try Bigger";
+
+}
+
+else{
+
+document.getElementById("message").innerHTML="⬇ Try Smaller";
+
+}
+
+document.getElementById("guessInput").value="";
+
+}
+
+function startComputerGame(range){
+
+low=1;
+high=range;
+
+document.getElementById("computerText").innerText="Think of a number between 1 and "+range;
+
+computerGuess();
+
+}
+
+function computerGuess(){
+
+currentGuess=Math.floor((low+high)/2);
+
+document.getElementById("computerGuess").innerText=currentGuess;
+
+}
+
+function tooSmall(){
+
+low=currentGuess+1;
+computerGuess();
+
+}
+
+function tooBig(){
+
+high=currentGuess-1;
+computerGuess();
+
+}
+
+function correct(){
+
+document.getElementById("computerText").innerHTML="🎉 Computer guessed correctly!";
+
+confetti({
+particleCount:200,
+spread:120,
+origin:{y:0.6}
+});
+
+}
+
+function restartGame(){
+
+location.reload();
+
+}
+
+document.getElementById("guessInput").addEventListener("keypress",function(e){
+
+if(e.key==="Enter") checkGuess();
+
+});
+
+document.addEventListener("keydown",function(e){
+
+let input=document.getElementById("guessInput");
+
+if(document.activeElement !== input) return;
+
+let value=parseInt(input.value)||1;
+
+if(e.key==="ArrowUp"){
+e.preventDefault();
+
+if(value<maxRange){
+input.value=value+1;
+}
+}
+
+if(e.key==="ArrowDown"){
+e.preventDefault();
+
+if(value>1){
+input.value=value-1;
+}
+}
+
+});
+
+</script>
+
+</body>
+
+</html>
+
