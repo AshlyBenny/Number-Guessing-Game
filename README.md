@@ -1,4 +1,4 @@
- # Number Guessing Game
+ # Mindguess - Number Guessing Game
 
 A simple web game where the player or the computer tries to guess a number.
 This project is built using HTML, CSS, and JavaScript and is deployed using GitHub Pages .
