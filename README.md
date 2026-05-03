@@ -2,7 +2,7 @@
 
 A fun, interactive number guessing game built with HTML, CSS, and JavaScript — playable directly in the browser.
 
-> **[▶ Play the Game](https://ashlybenny.github.io/MindGuess/)**
+ ** Play the Game- https://ashlybenny.github.io/MindGuess/**
 
 ---
 
